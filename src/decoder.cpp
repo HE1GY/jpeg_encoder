@@ -217,13 +217,13 @@ void readQuantizationTable(BitReader& bitReader, JPGImage* const image) {
         QuantizationTable& qTable = image->quantizationTables[tableID];
         qTable.set = true;
 
-        if (tableInfo >> 4 != 0) {
+        if (tableInfo >> 4 != 0) { // 16 bit - table
             for (uint i = 0; i < 64; ++i) {
                 qTable.table[zigZagMap[i]] = bitReader.readWord();
             }
             length -= 128;
         }
-        else {
+        else {                  //  8 bit - table
             for (uint i = 0; i < 64; ++i) {
                 qTable.table[zigZagMap[i]] = bitReader.readByte();
             }
@@ -510,14 +510,14 @@ void printFrameInfo(const JPGImage* const image) {
                 if (j % 8 == 0) {
                     std::cout << '\n';
                 }
-                std::cout << image->quantizationTables[i].table[j] << ' ';
+                std::cout << image->quantizationTables[i].table[j] << '\t';
             }
             std::cout << '\n';
         }
     }
 }
 
-// print info for the next scan
+// print info for the next scan  (progressive only)
 void printScanInfo(const JPGImage* const image) {
     if (image == nullptr) return;
     std::cout << "SOS=============\n";
@@ -1363,7 +1363,7 @@ void writeBMP(const JPGImage* const image, const std::string& filename) {
     }
 
     const uint paddingSize = image->width % 4;
-    const uint size = 14 + 12 + image->height * image->width * 3 + paddingSize * image->height;
+    const uint size = 14 + 12 + image->height * image->width * 3 + paddingSize * image->height; // 14 -header1 size 12 header2 size 3 - color comp
 
     byte* buffer = new (std::nothrow) byte[size];
     if (buffer == nullptr) {
@@ -1373,6 +1373,7 @@ void writeBMP(const JPGImage* const image, const std::string& filename) {
     }
     byte* bufferPos = buffer;
 
+    // header
     *bufferPos++ = 'B';
     *bufferPos++ = 'M';
     putInt(bufferPos, size);

@@ -1,7 +1,9 @@
 #ifndef JPG_H
 #define JPG_H
 
-#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 
 typedef unsigned char byte;
 typedef unsigned int uint;
